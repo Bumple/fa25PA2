@@ -89,42 +89,42 @@ int createLeafNodes(int freq[]) {
 
 // Step 3: Build the encoding tree using heap operations
 int buildEncodingTree(int nextFree) {
-    // TODO:
-    // 1. Create a MinHeap object.
     MinHeap Mheap;
-    // 2. Push all leaf node indices into the heap.
     for (int i = 0; i < nextFree; ++i) {
         Mheap.push(i, weightArr);
     }
-    // 3. While the heap size is greater than 1:
     while (Mheap.size > 1) {
         int left = Mheap.pop(weightArr);
         int right = Mheap.pop(weightArr);
-        //    - Pop two smallest nodes
-        weightArr[nextFree] = weightArr[left] + weightArr[right];//make parent at nextfree index
-        //    - Create a new parent node with combined weight
+        weightArr[nextFree] = weightArr[left] + weightArr[right];
         leftArr[nextFree]   = left;
         rightArr[nextFree]  = right;
-        //    - Set left/right pointers
         Mheap.push(nextFree, weightArr);
         nextFree++;
-        //    - Push new parent index back into the heap
     }
 
-    // 4. Return the index of the last remaining node (root)
     return Mheap.pop(weightArr);
 }
 
 // Step 4: Use an STL stack to generate codes
 void generateCodes(int root, string codes[]) {
-    // TODO:
-
-    // Use stack<pair<int, string>> to simulate DFS traversal.
-    // Left edge adds '0', right edge adds '1'.
-    // Record code when a leaf node is reached.
-
+    stack<pair<int, string> > stk;
+    stk.push({root, ""});
+    while (!stk.empty()) {
+        auto [node, code] = stk.top();
+        stk.pop();
+        int L = leftArr[node];
+        int R = rightArr[node];
+        if (L == -1 && R == -1) {
+            char c = charArr[node];
+            if (c >= 'a' && c <= 'z') {
+                codes[c - 'a'] = code.empty() ? "0" : code; // safety
+            }
+        }
+        if (L != -1) stk.push({L, code + "0"});
+        if (R != -1) stk.push({R, code + "1"});
+    }
 }
-
 // Step 5: Print table and encoded message
 void encodeMessage(const string& filename, string codes[]) {
     cout << "\nCharacter : Code\n";
